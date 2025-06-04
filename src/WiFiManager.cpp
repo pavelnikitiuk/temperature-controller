@@ -1,43 +1,59 @@
 #include "WiFiManager.h"
 
-WiFiManager::WiFiManager(ConfigManager &config) 
-  : configManager(config) {}
+WiFiManager::WiFiManager(ConfigManager &config, DisplayManager &display)
+  : configManager(config), displayManager(display) {}
 
 bool WiFiManager::begin() {
-  bool isWifiConnected = connect();
-
-  if (!isWifiConnected) {
-    Serial.println("Failed to connect to WIFI network. Createing AP");
-    startAP();
-  } else
-  {
-    Serial.println("Connected to WIFI");
-  }
-  
+  displayManager.setScreen(WIFI);
+  connect();
   return true;
 }
 
-bool WiFiManager::connect() {
-  Config* confing = configManager.getConfig();
-  Serial.println(confing->ssid);
-  Serial.println(confing->password);
+void WiFiManager::connect() {
+  Config* config = configManager.getConfig();
   WiFi.mode(WIFI_STA);
-  WiFi.begin(configManager.getConfig()->ssid, configManager.getConfig()->password);
+  WiFi.begin(config->ssid, config->password);
   Serial.println("Connecting to WIFI network");
-  unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 30000) {
-    delay(500);
-    Serial.print(".");
+  startTime = millis();
+  state = State::CONNECTING;
+}
+
+void WiFiManager::handle() {
+  if (state == State::CONNECTING) {
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\nConnected to WIFI");
+      state = State::CONNECTED;
+      globalState.currentState = INFO_SCREEN;
+    } else if (millis() - startTime >= timeout) {
+      Serial.println("\nFailed to connect to WIFI network. Creating AP");
+      startAP();
+      globalState.currentState = INFO_SCREEN;
+      state = State::FAILED;
+    } else {
+      Serial.print(".");
+    }
   }
-  Serial.println();
-  return WiFi.status() == WL_CONNECTED;
 }
 
 void WiFiManager::startAP() {
   WiFi.mode(WIFI_AP);
   WiFi.softAPdisconnect(true);
   WiFi.softAP(AP_SSID, AP_PASSWORD);
-  delay(1000);
-  Serial.print("Access Point IP Address:");
+  Serial.print("Access Point IP Address: ");
   Serial.println(WiFi.softAPIP());
+}
+
+WiFiState WiFiManager::getWiFiState() {
+  WiFiState state;
+  if (WiFi.status() == WL_CONNECTED) {
+    state.mode = WIFI_MODE;
+    state.ip = WiFi.localIP();
+    state.name = WiFi.SSID();
+  } else {
+    state.mode = AP_MODE;
+    state.ip = WiFi.softAPIP();
+    state.name = AP_SSID;
+    state.apPassword = AP_PASSWORD;
+  }
+  return state;
 }

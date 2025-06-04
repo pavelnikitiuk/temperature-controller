@@ -10,11 +10,11 @@ void WebServer::setup()
   server.on("/config", HTTP_POST, std::bind(&WebServer::handleConfigPost, this));
   server.on("/update", HTTP_GET, std::bind(&WebServer::handleUpdateGet, this));
   server.on("/update", HTTP_POST, [this]()
-            { server.send(200, "text/plain", ESPhttpUpdate.getLastErrorString()); }, std::bind(&WebServer::handleConfigPost, this));
+            { server.send(200, "text/plain", ESPhttpUpdate.getLastErrorString()); }, std::bind(&WebServer::handleUpdatePost, this));
   server.begin();
 }
 
-void WebServer::handleClient()
+void WebServer::handle()
 {
   server.handleClient();
 }

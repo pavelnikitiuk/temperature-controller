@@ -34,6 +34,7 @@ void OTAUpdater::handleEnd() {
 }
 
 void OTAUpdater::handleError(ota_error_t error) {
+  Serial.println(error);
   displayManager.showOtaErrorMessage(error);
   delay(5000);
 }

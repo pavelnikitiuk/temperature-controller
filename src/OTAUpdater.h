@@ -1,9 +1,10 @@
+#ifndef OTA_UPDATER_H
+#define OTA_UPDATER_H
 #include <ArduinoOTA.h>
 #include <ESP8266mDNS.h>
 
 #include "ConfigManager.h"
 #include "DisplayManager.h"
-
 
 class OTAUpdater {
 private:
@@ -18,3 +19,4 @@ public:
   void setup();
   void handle();
 };
+#endif

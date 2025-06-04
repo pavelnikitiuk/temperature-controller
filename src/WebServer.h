@@ -11,7 +11,7 @@ class WebServer {
   public:
     WebServer(ConfigManager &config, DisplayManager &display);
     void setup();
-    void handleClient();
+    void handle();
 
   private:
     ESP8266WebServer server;
