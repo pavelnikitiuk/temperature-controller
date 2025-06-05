@@ -1,4 +1,7 @@
 [wokwi]
-version = 1
-elf = ".pio/build/esp32/firmware.elf"
+name = "ESP32 + SSD1306 + DallasTemperature + Encoder"
+platform = "esp32"
+board = "esp32dev"
 firmware = ".pio/build/esp32/firmware.bin"
+elf = ".pio/build/esp32/firmware.elf"
+gdbServerPort = 1234

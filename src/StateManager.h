@@ -9,7 +9,7 @@
 #include "WiFiManager.h"
 #include "TemperatureManager.h"
 
-const int viewScreensCount = 2;
+const int viewScreensCount = 3;
 class StateManager {
 public:
   StateManager(ConfigManager &config, DisplayManager &display, OTAUpdater &ota,

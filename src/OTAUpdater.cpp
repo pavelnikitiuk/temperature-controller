@@ -1,11 +1,11 @@
-// OTAUpdater.cpp
 #include "OTAUpdater.h"
 
-OTAUpdater::OTAUpdater(ConfigManager &config, DisplayManager &display) 
+OTAUpdater::OTAUpdater(ConfigManager &config, DisplayManager &display)
   : configManager(config), displayManager(display) {}
 
 void OTAUpdater::setup() {
   ArduinoOTA.setPort(8266);
+
   if (strlen(configManager.getConfig()->otaPassword) > 0) {
     ArduinoOTA.setPassword(configManager.getConfig()->otaPassword);
   }
@@ -21,7 +21,16 @@ void OTAUpdater::setup() {
   ArduinoOTA.onError([this](ota_error_t error) {
     this->handleError(error);
   });
-  MDNS.begin("nodemcu");
+
+#ifdef ESP8266
+  MDNS.begin("device");
+#elif defined(ESP32)
+  if (!MDNS.begin("device")) {
+    Serial.println("Error setting up MDNS responder!");
+  }
+#endif
+
+  ArduinoOTA.begin();
 }
 
 void OTAUpdater::handleStart() {
@@ -41,5 +50,7 @@ void OTAUpdater::handleError(ota_error_t error) {
 
 void OTAUpdater::handle() {
   ArduinoOTA.handle();
+#ifdef ESP8266
   MDNS.update();
+#endif
 }

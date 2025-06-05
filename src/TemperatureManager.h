@@ -3,6 +3,7 @@
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <NonBlockingDallas.h> 
 
 class TemperatureManager {
 public:
@@ -12,12 +13,13 @@ public:
   float getTemperature() const;
 
 private:
+  static void handleTemperatureChange(int deviceIndex, int32_t temperatureRAW);
+  static float lastTemperature;
   uint8_t pin;
   OneWire oneWire;
   DallasTemperature sensors;
-  float lastTemperature = 0.0;
-  unsigned long lastReadTime = 0;
-  const unsigned long updateInterval = 5000;
+  NonBlockingDallas temperatureSensors;
+  int updateInterval = 5000;
 };
 
 #endif

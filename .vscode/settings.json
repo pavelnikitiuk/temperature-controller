@@ -55,6 +55,10 @@
     "variant": "cpp",
     "iostream": "cpp",
     "istream": "cpp",
-    "*.xbm": "cpp"
+    "*.xbm": "cpp",
+    "unordered_set": "cpp",
+    "fstream": "cpp",
+    "iomanip": "cpp",
+    "sstream": "cpp"
   }
 }

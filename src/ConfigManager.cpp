@@ -6,7 +6,6 @@ ConfigManager::ConfigManager() {
 
 void ConfigManager::load() {
   EEPROM.get(0, config);
-  Serial.print(config.magic);
   if (config.magic != CONFIG_MAGIC) {
     Serial.println("Reset eeprom");
     reset();

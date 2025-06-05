@@ -1,10 +1,21 @@
 #include "RotaryManager.h"
 
 RotaryManager::RotaryManager(uint8_t pinA, uint8_t pinB, uint8_t buttonPin)
-  : encoder(pinA, pinB, buttonPin) {}
+    : encoder(pinA, pinB, buttonPin, INPUT_PULLUP) {
+
+    }
 
 void RotaryManager::begin() {
-  encoder.setType(TYPE2);
+  encoder.setBtnLevel(LOW);
+  encoder.setClickTimeout(500);
+  encoder.setDebTimeout(50);
+  encoder.setHoldTimeout(600);
+  encoder.setStepTimeout(200);
+
+  encoder.setEncReverse(0);
+  encoder.setEncType(EB_STEP);
+  encoder.setFastTimeout(30);
+  encoder.counter = 0;
 }
 
 void RotaryManager::onEvent(RotaryEvent event, std::function<void()> callback) {
@@ -14,20 +25,11 @@ void RotaryManager::onEvent(RotaryEvent event, std::function<void()> callback) {
 void RotaryManager::update() {
   encoder.tick();
 
-  // if (encoder.isTurn() && callbacks.count(ROTATE)) callbacks[ROTATE]();
-  if (encoder.isRight() && callbacks.count(RIGHT)) callbacks[RIGHT]();
-  if (encoder.isLeft() && callbacks.count(LEFT)) callbacks[LEFT]();
-  if (encoder.isRightH() && callbacks.count(RIGHT_HOLD)) callbacks[RIGHT_HOLD]();
-  // if (encoder.isLeftH() && callbacks.count(LEFT_HOLD)) callbacks[LEFT_HOLD]();
-  // if (encoder.isFastR() && callbacks.count(FAST_RIGHT)) callbacks[FAST_RIGHT]();
-  // if (encoder.isFastL() && callbacks.count(FAST_LEFT)) callbacks[FAST_LEFT]();
-
-  if (encoder.isPress() && callbacks.count(PRESS)) callbacks[PRESS]();
-  // if (encoder.isRelease() && callbacks.count(RELEASE)) callbacks[RELEASE]();
-  // if (encoder.isReleaseHold() && callbacks.count(RELEASE_HOLD)) callbacks[RELEASE_HOLD]();
-  // if (encoder.isClick() && callbacks.count(CLICK)) callbacks[CLICK]();
-  // if (encoder.isHolded() && callbacks.count(HOLDED)) callbacks[HOLDED]();
-  // if (encoder.isHold() && callbacks.count(HOLD)) callbacks[HOLD]();
-  // if (encoder.isSingle() && callbacks.count(SINGLE)) callbacks[SINGLE]();
-  // if (encoder.isDouble() && callbacks.count(DOUBLE)) callbacks[DOUBLE]();
+  if (encoder.right() && callbacks.count(RIGHT))
+    callbacks[RIGHT]();
+  if (encoder.left() && callbacks.count(LEFT))
+    callbacks[LEFT]();
+  if (encoder.click() && callbacks.count(PRESS))
+    callbacks[PRESS]();
+  
 }

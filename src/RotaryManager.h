@@ -1,7 +1,7 @@
 #ifndef ROTARY_MANAGER_H
 #define ROTARY_MANAGER_H
 
-#include <GyverEncoder.h>
+#include <EncButton.h>
 #include <map>
 
 enum RotaryEvent {
@@ -32,7 +32,7 @@ public:
   void onEvent(RotaryEvent event, std::function<void()> callback);
 
 private:
-  Encoder encoder;
+  EncButton encoder;
   std::map<RotaryEvent, std::function<void()>> callbacks;
 };
 

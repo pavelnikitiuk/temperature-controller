@@ -1,31 +1,20 @@
 #include "DisplayManager.h"
 
-DisplayManager::DisplayManager()
-    : u8g2(U8G2_R0, OLED_SCL, OLED_SDA, -1), mainScreen(u8g2),
-      loadingScreen(u8g2), wiFiScreen(u8g2), infoScreen(u8g2),
-      currentScreen(&wiFiScreen), previousScreen(nullptr) {}
+DisplayManager::DisplayManager() : u8g2(U8G2_R0, U8X8_PIN_NONE) {
+  createScreenFactory();
+  setScreen(WIFI);
+}
 
 bool DisplayManager::begin() {
-  pinMode(OLED_SCL, OUTPUT);
-  digitalWrite(OLED_SCL, LOW);
-  delay(100);
-  digitalWrite(OLED_SCL, HIGH);
-  delay(500);
-
-  Wire.begin(OLED_SDA, OLED_SCL);
-  Wire.setClockStretchLimit(150000);
+  delay(2000);
+  Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
+  Wire.setClock(400000);
   u8g2.begin();
-  u8g2.setBusClock(100000);
-  u8g2.setFont(u8g2_font_6x10_tf);
-  u8g2.setContrast(150);
   lastUpdate = millis();
   return true;
 }
 
-void DisplayManager::handle() {
-  bool isScreenChanged = currentScreen != previousScreen;
-  currentScreen->handle(isScreenChanged);
- }
+void DisplayManager::handle() { currentScreen->handle(true); }
 
 void DisplayManager::updateStatus() {
   if (millis() - lastUpdate < 1000) {
@@ -79,24 +68,26 @@ void DisplayManager::showOtaRebootMessage() {
   } while (u8g2.nextPage());
 }
 
-Screen &DisplayManager::getScreenForState(AppState state) {
-  switch (state) {
-  case WIFI:
-    return wiFiScreen;
-  case MAIN_SCREEN:
-    return mainScreen;
-  case LOADING_SCREEN:
-    return loadingScreen;
-  case INFO_SCREEN:
-    return infoScreen;
-
-  default:
-    return mainScreen;
-  }
+void DisplayManager::createScreenFactory() {
+  screenFactory[WIFI] = [this]() { return new WiFiScreen(u8g2); };
+  screenFactory[MAIN_SCREEN] = [this]() { return new MainScreen(u8g2); };
+  screenFactory[LOADING_SCREEN] = [this]() { return new LoadingScreen(u8g2); };
+  screenFactory[TEMPERATURE_SCREEN] = [this]() {
+    return new TemperatureScreen(u8g2);
+  };
+  screenFactory[INFO_SCREEN] = [this]() { return new InfoScreen(u8g2); };
 }
 
 void DisplayManager::setScreen(AppState state) {
-  previousScreen = currentScreen;
-  Screen &screen = getScreenForState(state);
-  currentScreen = &screen;
+  if (currentScreen) {
+    delete currentScreen;
+    currentScreen = nullptr;
+  }
+
+  auto it = screenFactory.find(state);
+  if (it != screenFactory.end()) {
+    currentScreen = it->second();
+  } else {
+    currentScreen = screenFactory[MAIN_SCREEN](); // fallback
+  }
 }

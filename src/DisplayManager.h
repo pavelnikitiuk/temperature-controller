@@ -2,9 +2,16 @@
 #define DISPLAY_MANAGER_H
 
 #include <U8g2lib.h>
-#include <ESP8266WiFi.h>
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#elif defined(ESP32)
+  #include <WiFi.h>
+#endif
 #include <ArduinoOTA.h>
 #include <Wire.h>
+#include <map>
+#include <memory>
+
 
 #include "Variables.h"
 #include "screens/Screen.h"
@@ -13,6 +20,7 @@
 #include "screens/InfoScreen.h"
 #include "screens/MainScreen.h"
 #include "screens/WiFiScreen.h"
+#include "screens/TemperatureScreen.h"
 
 class DisplayManager {
   public:
@@ -26,18 +34,16 @@ class DisplayManager {
     void showOtaUpdateMessage();
     void showOtaRebootMessage();
     void (*getDrawFunctionForState(AppState state))();
+    
 
     void setScreen(AppState state);
   private:
     unsigned long lastUpdate;
-    Screen& getScreenForState(AppState state);
-    U8G2_SSD1306_128X64_NONAME_1_SW_I2C u8g2;
-    MainScreen mainScreen;
-    LoadingScreen loadingScreen;
-    WiFiScreen wiFiScreen;
-    InfoScreen infoScreen;
-    Screen* currentScreen;
-    Screen* previousScreen;
+    U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2;
+    std::map<AppState, std::function<Screen*()>> screenFactory;
+    void createScreenFactory();
+
+    Screen* currentScreen = nullptr;
 };
 
 #endif

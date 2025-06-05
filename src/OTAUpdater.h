@@ -1,7 +1,13 @@
 #ifndef OTA_UPDATER_H
 #define OTA_UPDATER_H
+
 #include <ArduinoOTA.h>
-#include <ESP8266mDNS.h>
+
+#ifdef ESP8266
+  #include <ESP8266mDNS.h>
+#elif defined(ESP32)
+  #include <ESPmDNS.h>
+#endif
 
 #include "ConfigManager.h"
 #include "DisplayManager.h"
@@ -19,4 +25,5 @@ public:
   void setup();
   void handle();
 };
+
 #endif
