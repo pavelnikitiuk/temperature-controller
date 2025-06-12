@@ -8,12 +8,13 @@
 #include "Variables.h"
 #include "WiFiManager.h"
 #include "TemperatureManager.h"
+#include "RelayManager.h"
 
-const int viewScreensCount = 3;
+const int viewScreensCount = 4;
 class StateManager {
 public:
   StateManager(ConfigManager &config, DisplayManager &display, OTAUpdater &ota,
-               WiFiManager &wiFi);
+               WiFiManager &wiFi, RotaryManager &rotary, TemperatureManager &temperature, RelayManager &relay);
   void handle();
   void updateGlobalState();
 
@@ -23,8 +24,9 @@ private:
   OTAUpdater &otaManager;
   WiFiManager &wiFiManager;
   StateObserver stateObserver;
-  RotaryManager rotaryManager;
-  TemperatureManager temperatureManager;
+  RotaryManager &rotaryManager;
+  TemperatureManager &temperatureManager;
+  RelayManager &relayManager;
   unsigned long updateTime;
   unsigned long lastUpdateTime;
   void registerHandlers();

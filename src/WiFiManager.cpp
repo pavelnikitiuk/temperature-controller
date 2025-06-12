@@ -1,7 +1,7 @@
 #include "WiFiManager.h"
 
 WiFiManager::WiFiManager(ConfigManager &config, DisplayManager &display)
-  : configManager(config), displayManager(display) {}
+    : configManager(config), displayManager(display) {}
 
 bool WiFiManager::begin() {
   displayManager.setScreen(WIFI);
@@ -10,9 +10,15 @@ bool WiFiManager::begin() {
 }
 
 void WiFiManager::connect() {
-  Config* config = configManager.getConfig();
+  Config *config = configManager.getConfig();
   WiFi.mode(WIFI_STA);
+#if defined(WOKWI)
+  WiFi.begin("Wokwi-GUEST", "", 6);
+  Serial.println("Connecting to wokwi guest network");
+#else
   WiFi.begin(config->ssid, config->password);
+#endif
+
   Serial.println("Connecting to WIFI network");
   startTime = millis();
   state = State::CONNECTING;
@@ -23,11 +29,11 @@ void WiFiManager::handle() {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("\nConnected to WIFI");
       state = State::CONNECTED;
-      globalState.currentState = INFO_SCREEN;
+      globalState.currentState = MAIN_SCREEN;
     } else if (millis() - startTime >= timeout) {
       Serial.println("\nFailed to connect to WIFI network. Creating AP");
       startAP();
-      globalState.currentState = INFO_SCREEN;
+      globalState.currentState = MAIN_SCREEN;
       state = State::FAILED;
     } else {
       Serial.print(".");

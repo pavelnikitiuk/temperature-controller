@@ -1,9 +1,6 @@
 #include "StaticScreen.h"
 
-void StaticScreen::draw(bool force) {
-  if (!shouldUpdate() && !force) {
-    return;
-  }
+void StaticScreen::draw() {
   u8g2.firstPage();
   do {
     drawScreen();
