@@ -1,6 +1,6 @@
 #include "AnimatedScreen.h"
 
-void AnimatedScreen::draw(bool force) {
+void AnimatedScreen::draw() {
   u8g2.firstPage();
   do {
     drawFrame(currentFrame);

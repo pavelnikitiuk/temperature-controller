@@ -10,6 +10,7 @@ public:
 
 private:
   void drawFrame(int frame) override;
+  void screenWillRemove() override;
   int getFramesCount() override;
 };
 #endif

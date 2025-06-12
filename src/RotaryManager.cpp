@@ -1,9 +1,7 @@
 #include "RotaryManager.h"
 
 RotaryManager::RotaryManager(uint8_t pinA, uint8_t pinB, uint8_t buttonPin)
-    : encoder(pinA, pinB, buttonPin, INPUT_PULLUP) {
-
-    }
+    : encoder(pinA, pinB, buttonPin, INPUT_PULLUP) {}
 
 void RotaryManager::begin() {
   encoder.setBtnLevel(LOW);
@@ -22,14 +20,19 @@ void RotaryManager::onEvent(RotaryEvent event, std::function<void()> callback) {
   callbacks[event] = callback;
 }
 
-void RotaryManager::update() {
+void RotaryManager::handle() {
   encoder.tick();
 
-  if (encoder.right() && callbacks.count(RIGHT))
+  if (encoder.right() && callbacks.count(RIGHT)) {
     callbacks[RIGHT]();
-  if (encoder.left() && callbacks.count(LEFT))
+  }
+  if (encoder.left() && callbacks.count(LEFT)) {
     callbacks[LEFT]();
-  if (encoder.click() && callbacks.count(PRESS))
-    callbacks[PRESS]();
-  
+  }
+  if (encoder.click() && callbacks.count(CLICK)) {
+    callbacks[CLICK]();
+  }
+  if (encoder.hold() && callbacks.count(HOLD)) {
+    callbacks[HOLD]();
+  }
 }

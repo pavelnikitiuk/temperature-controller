@@ -20,7 +20,7 @@ void StateObserver::onWiFiChanged(std::function<void(const WiFiState &)> callbac
   wifiChangedCallback = callback;
 }
 
-void StateObserver::update(const GlobalState &newState) {
+void StateObserver::handle(const GlobalState &newState) {
   if (previousState.isRelayEnabled != newState.isRelayEnabled && relayChangedCallback) {
     relayChangedCallback(newState.isRelayEnabled);
   }

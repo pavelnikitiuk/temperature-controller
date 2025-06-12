@@ -1,6 +1,6 @@
 #include "TemperatureManager.h"
 
-float TemperatureManager::lastTemperature = 0.0;
+float TemperatureManager::lastTemperature = -10.0;
 
 TemperatureManager::TemperatureManager(uint8_t pin)
   : pin(pin), oneWire(pin), sensors(&oneWire), temperatureSensors(&sensors) {}

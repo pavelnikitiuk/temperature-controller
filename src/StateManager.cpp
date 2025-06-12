@@ -1,29 +1,17 @@
 #include "StateManager.h"
 
-#if defined(ESP8266)
-  #define ROTARY_CLK_PIN D6
-  #define ROTARY_DT_PIN D7
-  #define ROTARY_SW_PIN D5
-  #define TEMP_PIN D3
-#elif defined(ESP32)
-  #define ROTARY_CLK_PIN 18
-  #define ROTARY_DT_PIN 19
-  #define ROTARY_SW_PIN 21
-  #define TEMP_PIN 15
-#endif
-
 StateManager::StateManager(ConfigManager &config, DisplayManager &display,
-                           OTAUpdater &ota, WiFiManager &wifi)
-    : configManager(config),
-      displayManager(display),
-      otaManager(ota),
-      wiFiManager(wifi),
-      rotaryManager(ROTARY_CLK_PIN, ROTARY_DT_PIN, ROTARY_SW_PIN),
-      temperatureManager(TEMP_PIN) {
+                           OTAUpdater &ota, WiFiManager &wifi,
+                           RotaryManager &rotary,
+                           TemperatureManager &temperature, RelayManager &relay)
+    : configManager(config), displayManager(display), otaManager(ota),
+      wiFiManager(wifi), rotaryManager(rotary), temperatureManager(temperature),
+      relayManager(relay) {
 
   viewScreens[0] = MAIN_SCREEN;
-  viewScreens[1] = INFO_SCREEN;
-  viewScreens[2] = TEMPERATURE_SCREEN;
+  viewScreens[1] = TEMPERATURE_SETTINGS_SCREEN;
+  viewScreens[2] = MODE_SETTINGS_SCREEN;
+  viewScreens[3] = INFO_SCREEN;
 
   stateObserver.begin(globalState);
   temperatureManager.begin();
@@ -36,26 +24,39 @@ void StateManager::handle() {
     lastUpdateTime = currentTime;
     updateGlobalState();
   }
-  stateObserver.update(globalState);
-  rotaryManager.update();
-  temperatureManager.handle();
+  stateObserver.handle(globalState);
 }
 
 void StateManager::updateGlobalState() {
   globalState.wifiState = wiFiManager.getWiFiState();
-  globalState.isRelayEnabled = false;
   globalState.temperature = temperatureManager.getTemperature();
 }
 
 void StateManager::registerHandlers() {
   stateObserver.onAppStateChanged(
-      [this](AppState state) {
-        displayManager.setScreen(state);
-      });
+      [this](AppState state) { displayManager.setScreen(state); });
 
-  rotaryManager.onEvent(RIGHT, [this]() { swithScreen(1); });
-  rotaryManager.onEvent(LEFT, [this]() { swithScreen(-1); });
-  rotaryManager.onEvent(PRESS, []() { Serial.println("Press"); });
+  stateObserver.onRelayChanged([this](bool value) {
+    relayManager.setStatus(value);
+  });
+
+  rotaryManager.onEvent(RIGHT, [this]() {
+    bool shouldSwithScreen = displayManager.currentScreen->onRightScroll();
+    if (shouldSwithScreen) {
+      swithScreen(1);
+    }
+  });
+  rotaryManager.onEvent(LEFT, [this]() {
+    bool shouldSwithScreen = displayManager.currentScreen->onLeftScroll();
+    if (shouldSwithScreen) {
+      swithScreen(-1);
+    }
+  });
+  rotaryManager.onEvent(CLICK, [this]() {
+    displayManager.currentScreen->onClick();
+  });
+  rotaryManager.onEvent(HOLD,
+                        [this]() { displayManager.currentScreen->onHold(); });
 }
 
 int StateManager::findStateIndex(AppState state) {

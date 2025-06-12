@@ -16,17 +16,16 @@
 #include "Variables.h"
 #include "screens/Screen.h"
 #include "screens/AnimatedScreen.h"
-#include "screens/LoadingScreen.h"
 #include "screens/InfoScreen.h"
 #include "screens/MainScreen.h"
 #include "screens/WiFiScreen.h"
-#include "screens/TemperatureScreen.h"
+#include "screens/TemperatureSettingScreen.h"
+#include "screens/ModeSettingScreen.h"
 
 class DisplayManager {
   public:
     DisplayManager();
     void handle();
-    void updateStatus();
     bool begin();
     void showOtaStartMessage();
     void showOtaEndMessage();
@@ -34,7 +33,7 @@ class DisplayManager {
     void showOtaUpdateMessage();
     void showOtaRebootMessage();
     void (*getDrawFunctionForState(AppState state))();
-    
+    Screen* currentScreen = nullptr;
 
     void setScreen(AppState state);
   private:
@@ -42,8 +41,6 @@ class DisplayManager {
     U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2;
     std::map<AppState, std::function<Screen*()>> screenFactory;
     void createScreenFactory();
-
-    Screen* currentScreen = nullptr;
 };
 
 #endif

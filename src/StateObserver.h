@@ -12,7 +12,7 @@ public:
   void onAppStateChanged(std::function<void(AppState)> callback);
   void onWiFiChanged(std::function<void(const WiFiState &)> callback);
 
-  void update(const GlobalState &newState);
+  void handle(const GlobalState &newState);
 
 private:
   GlobalState previousState;
