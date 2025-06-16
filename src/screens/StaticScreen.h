@@ -10,7 +10,6 @@ public:
 private:
   unsigned int getUpdateTime() override;
   virtual void drawScreen() {};
-  virtual bool shouldUpdate() { return false; };
 };
 
 #endif

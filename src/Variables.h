@@ -23,11 +23,12 @@
 #endif
 
 #define EEPROM_SIZE 1024
-#define CONFIG_MAGIC 0xDEADBEEF
+#define CONFIG_MAGIC 0xDEADBEEA
 
 #define SERVER_PORT 80
 #define AP_SSID "TemperatureController"
 #define AP_PASSWORD "PN123456"
+#define OTA_PASSWORD "admin"
 
 #define OLED_WIDTH 128
 #define OLED_HEIGHT 64
@@ -46,14 +47,15 @@ enum WiFiStateMode { WIFI_MODE, AP_MODE };
 enum RelayControlMode { RELAY_CONTROL_MANUAL, RELAY_CONTROL_AUTO };
 
 struct WiFiState {
-  String name;
-  String apPassword;
+  char name[32];
+  char apPassword[32];
+  char password[64];
   IPAddress ip;
   WiFiStateMode mode;
 
   bool operator==(const WiFiState &other) const {
     return name == other.name && apPassword == other.apPassword &&
-           ip == other.ip && mode == other.mode;
+           ip == other.ip && mode == other.mode && password == other.password;
   }
 
   bool operator!=(const WiFiState &other) const { return !(*this == other); }
@@ -72,18 +74,49 @@ struct RelayControl {
   bool operator!=(const RelayControl &other) const { return !(*this == other); }
 };
 
-struct GlobalState {
+struct GlobalViewState {
+  AppState currentState;
   float temperature;
+
+  bool operator==(const GlobalViewState &other) const {
+    return (currentState == other.currentState) &&
+           (temperature == other.temperature);
+  }
+
+  bool operator!=(const GlobalViewState &other) const {
+    return !(*this == other);
+  }
+};
+
+struct GlobalConfigurationState {
   bool isRelayEnabled;
   WiFiState wifiState;
-  AppState currentState;
   RelayControl relayControl;
+  char otaPassword[32];
+  uint32_t magic;
+
+  bool operator==(const GlobalConfigurationState &other) const {
+    return (isRelayEnabled == other.isRelayEnabled) &&
+           (wifiState == other.wifiState) &&
+           (relayControl == other.relayControl) &&
+           otaPassword == other.otaPassword && magic == other.magic;
+  }
+
+  bool operator!=(const GlobalConfigurationState &other) const {
+    return !(*this == other);
+  }
+};
+
+struct GlobalState {
+  GlobalViewState view;
+  GlobalConfigurationState configuration;
 
   bool operator==(const GlobalState &other) const {
-    return temperature == other.temperature &&
-           isRelayEnabled == other.isRelayEnabled &&
-           wifiState == other.wifiState && currentState == other.currentState &&
-           relayControl == other.relayControl;
+    return view.temperature == other.view.temperature &&
+           configuration.isRelayEnabled == other.configuration.isRelayEnabled &&
+           configuration.wifiState == other.configuration.wifiState &&
+           view.currentState == other.view.currentState &&
+           configuration.relayControl == other.configuration.relayControl;
   }
 
   bool operator!=(const GlobalState &other) const { return !(*this == other); }

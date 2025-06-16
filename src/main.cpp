@@ -37,8 +37,11 @@ void setup() {
   webServer.setup();
   relay.begin();
 }
+
+#if defined(SHOW_FPS)
 unsigned long lastMillis = millis();
 int frames = 0;
+#endif
 
 void loop() {
   ota.handle();
@@ -49,6 +52,7 @@ void loop() {
   rotary.handle();
   temperature.handle();
 
+#if defined(SHOW_FPS)
   frames++;
   if (millis() - lastMillis >= 1000) {
     Serial.print("FPS: ");
@@ -56,4 +60,5 @@ void loop() {
     frames = 0;
     lastMillis = millis();
   }
+#endif
 }
