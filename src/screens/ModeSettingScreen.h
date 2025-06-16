@@ -15,7 +15,6 @@ protected:
   unsigned int getUpdateTime() override;
 
 private:
-  bool shouldUpdate();
   unsigned int updateTime = 200;
 };
 #endif

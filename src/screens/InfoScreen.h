@@ -20,7 +20,6 @@ public:
   void drawQr();
   void onClick() override;
 private:
-  bool shouldUpdate();
   WiFiState currentState;
   InfoScreenViewMode mode = INFO_SCREEN_TEXT;
 };

@@ -5,28 +5,26 @@ ConfigManager::ConfigManager() {
 }
 
 void ConfigManager::load() {
-  EEPROM.get(0, config);
-  if (config.magic != CONFIG_MAGIC) {
+  EEPROM.get(0, globalState.configuration);
+  if (globalState.configuration.magic != CONFIG_MAGIC) {
     Serial.println("Reset eeprom");
     reset();
   }
 }
 
 void ConfigManager::save() {
-  EEPROM.put(0, config);
+  EEPROM.put(0, globalState.configuration);
   EEPROM.commit();
 }
 
 void ConfigManager::reset() {
-  config.magic = CONFIG_MAGIC;
-  strcpy(config.ssid, "");
-  strcpy(config.password, "");
-  strcpy(config.otaPassword, "admin");
-  config.checkUpdates = false;
-  config.updateInterval = 24;
+  globalState.configuration.magic = CONFIG_MAGIC;
+  globalState.configuration.isRelayEnabled = false;
+  globalState.configuration.relayControl.mode = RELAY_CONTROL_MANUAL;
+  globalState.configuration.relayControl.temperatureOn = 0;
+  globalState.configuration.relayControl.temperatureOff = 0;
+  strcpy(globalState.configuration.wifiState.name, "");
+  strcpy(globalState.configuration.wifiState.password, "");
+  strcpy(globalState.configuration.otaPassword, OTA_PASSWORD);
   save();
-}
-
-Config* ConfigManager::getConfig() {
-  return &config;
 }

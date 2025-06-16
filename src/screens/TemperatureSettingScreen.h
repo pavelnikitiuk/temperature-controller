@@ -28,7 +28,6 @@ protected:
 
 private:
   TemperatureSettingScreenState state;
-  bool shouldUpdate();
   unsigned int updateTime = 200;
   void adjustTemperature(float delta);
   float delta = 0.5;

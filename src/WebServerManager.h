@@ -13,6 +13,7 @@
 
 #include "ConfigManager.h"
 #include "DisplayManager.h"
+#include "Variables.h"
 
 class WebServerManager {
 public:

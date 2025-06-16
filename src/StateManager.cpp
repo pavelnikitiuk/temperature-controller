@@ -28,8 +28,8 @@ void StateManager::handle() {
 }
 
 void StateManager::updateGlobalState() {
-  globalState.wifiState = wiFiManager.getWiFiState();
-  globalState.temperature = temperatureManager.getTemperature();
+  globalState.configuration.wifiState = wiFiManager.getWiFiState();
+  globalState.view.temperature = temperatureManager.getTemperature();
 }
 
 void StateManager::registerHandlers() {
@@ -38,6 +38,10 @@ void StateManager::registerHandlers() {
 
   stateObserver.onRelayChanged([this](bool value) {
     relayManager.setStatus(value);
+  });
+
+  stateObserver.onRelayModeChangedCallback([this](RelayControlMode mode) {
+    configManager.save();
   });
 
   rotaryManager.onEvent(RIGHT, [this]() {
@@ -69,12 +73,12 @@ int StateManager::findStateIndex(AppState state) {
 }
 
 void StateManager::swithScreen(int screensCount) {
-  int index = findStateIndex(globalState.currentState);
+  int index = findStateIndex(globalState.view.currentState);
   if (index == -1) {
     Serial.print("Unknown state ");
-    Serial.println(globalState.currentState);
+    Serial.println(globalState.view.currentState);
     return;
   }
   int nextIndex = (index + screensCount + viewScreensCount) % viewScreensCount;
-  globalState.currentState = viewScreens[nextIndex];
+  globalState.view.currentState = viewScreens[nextIndex];
 }

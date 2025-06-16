@@ -6,8 +6,8 @@ OTAUpdater::OTAUpdater(ConfigManager &config, DisplayManager &display)
 void OTAUpdater::setup() {
   ArduinoOTA.setPort(8266);
 
-  if (strlen(configManager.getConfig()->otaPassword) > 0) {
-    ArduinoOTA.setPassword(configManager.getConfig()->otaPassword);
+  if (strlen(globalState.configuration.otaPassword) > 0) {
+    ArduinoOTA.setPassword(globalState.configuration.otaPassword);
   }
 
   ArduinoOTA.onStart([this]() {

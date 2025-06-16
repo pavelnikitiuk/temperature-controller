@@ -20,7 +20,7 @@ void TemperatureSettingScreen::drawScreen() {
     state.showEditingValue = !state.showEditingValue;
   }
 
-  state.relayControl = globalState.relayControl;
+  state.relayControl = globalState.configuration.relayControl;
   float tempOn = state.relayControl.temperatureOn;
   float tempOff = state.relayControl.temperatureOff;
 
@@ -60,11 +60,6 @@ void TemperatureSettingScreen::drawScreen() {
     u8g2.print(offStr);
   }
 }
-
-bool TemperatureSettingScreen::shouldUpdate() {
-  return state.isEditing || globalState.relayControl != state.relayControl;
-}
-
 void TemperatureSettingScreen::onClick() {
   if (!state.isEditing) {
     return;
@@ -111,9 +106,9 @@ bool TemperatureSettingScreen::onRightScroll() {
 
 void TemperatureSettingScreen::adjustTemperature(float delta) {
   if (state.isEditingOn) {
-    globalState.relayControl.temperatureOn += delta;
+    globalState.configuration.relayControl.temperatureOn += delta;
   } else {
-    globalState.relayControl.temperatureOff += delta;
+    globalState.configuration.relayControl.temperatureOff += delta;
   }
 }
 

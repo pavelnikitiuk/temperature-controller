@@ -24,24 +24,18 @@ void WebServerManager::handleRoot() {
 }
 
 void WebServerManager::handleConfigGet() {
-  Config *config = configManager.getConfig();
   String html = "<form method='POST' action='/config'>"
-                "SSID: <input type='text' name='ssid' value='" + String(config->ssid) + "'><br>"
+                "SSID: <input type='text' name='ssid' value='" + String(globalState.configuration.wifiState.name) + "'><br>"
                 "Password: <input type='password' name='pass'><br>"
-                "OTA Password: <input type='text' name='otapass' value='" + String(config->otaPassword) + "'><br>"
-                "Auto-update: <input type='checkbox' name='autoupdate' " + (config->checkUpdates ? "checked" : "") + "><br>"
-                "Interval (hours): <input type='number' name='interval' value='" + String(config->updateInterval) + "'><br>"
+                "OTA Password: <input type='text' name='otapass' value='" + String(globalState.configuration.otaPassword) + "'><br>"
                 "<input type='submit'></form>";
   server.send(200, "text/html", html);
 }
 
 void WebServerManager::handleConfigPost() {
-  Config *config = configManager.getConfig();
-  strlcpy(config->ssid, server.arg("ssid").c_str(), sizeof(config->ssid));
-  strlcpy(config->password, server.arg("pass").c_str(), sizeof(config->password));
-  strlcpy(config->otaPassword, server.arg("otapass").c_str(), sizeof(config->otaPassword));
-  config->checkUpdates = server.hasArg("autoupdate");
-  config->updateInterval = server.arg("interval").toInt();
+  strlcpy(globalState.configuration.wifiState.name, server.arg("ssid").c_str(), sizeof(globalState.configuration.wifiState.name));
+  strlcpy(globalState.configuration.wifiState.password, server.arg("pass").c_str(), sizeof(globalState.configuration.wifiState.password));
+  strlcpy(globalState.configuration.otaPassword, server.arg("otapass").c_str(), sizeof(globalState.configuration.otaPassword));
 
   configManager.save();
   server.send(200, "text/plain", "Settings saved. Rebooting...");
@@ -50,8 +44,7 @@ void WebServerManager::handleConfigPost() {
 }
 
 void WebServerManager::handleUpdateGet() {
-  Config *config = configManager.getConfig();
-  if (!server.authenticate("admin", config->otaPassword)) {
+  if (!server.authenticate("admin", globalState.configuration.otaPassword)) {
     return server.requestAuthentication();
   }
 

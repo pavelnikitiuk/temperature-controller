@@ -1,7 +1,7 @@
 #include "ModeSettingScreen.h"
 
 void ModeSettingScreen::drawScreen() {
-  bool isAuto = globalState.relayControl.mode == RELAY_CONTROL_AUTO;
+  bool isAuto = globalState.configuration.relayControl.mode == RELAY_CONTROL_AUTO;
 
   u8g2.drawFrame(0, 0, 128, 64);
   u8g2.drawHLine(0, 14, 128);
@@ -19,14 +19,12 @@ void ModeSettingScreen::drawScreen() {
   u8g2.print(modeStr);
 }
 
-bool ModeSettingScreen::shouldUpdate() { return true; }
-
 void ModeSettingScreen::onClick() {
-  if (globalState.relayControl.mode == RELAY_CONTROL_MANUAL) {
-    globalState.relayControl.mode = RELAY_CONTROL_AUTO;
+  if (globalState.configuration.relayControl.mode == RELAY_CONTROL_MANUAL) {
+    globalState.configuration.relayControl.mode = RELAY_CONTROL_AUTO;
   } else {
-    globalState.relayControl.mode = RELAY_CONTROL_MANUAL;
-  }
+    globalState.configuration.relayControl.mode = RELAY_CONTROL_MANUAL;
+  } 
 }
 
 unsigned int ModeSettingScreen::getUpdateTime() { return 200; }
