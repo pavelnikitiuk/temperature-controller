@@ -28,7 +28,7 @@ void TemperatureSettingScreen::drawScreen() {
   u8g2.drawVLine(63, 0, 64);
   u8g2.drawVLine(64, 0, 64);
 
-  u8g2.setFont(u8g2_font_6x10_tr);
+  u8g2.setFont(I18N_FONT_TITLE);
   u8g2.drawStr(4, 12, "ON");
   u8g2.drawStr(68, 12, "OFF");
 

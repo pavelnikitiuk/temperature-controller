@@ -24,10 +24,15 @@ void StateObserver::onRelayModeChangedCallback(std::function<void(const RelayCon
   relayModeChangedCallback = callback;
 }
 
+void StateObserver::onOnTemperatureChangedCallback(std::function<void(const float &)> callback) {
+  onTemperatureChangedCallback = callback;
+}
+
+void StateObserver::onOffTemperatureChangedCallback(std::function<void(const float &)> callback) {
+  offTemperatureChangedCallback = callback;
+}
+
 void StateObserver::handle(const GlobalState &newState) {
-  if (previousState.configuration.isRelayEnabled != newState.configuration.isRelayEnabled && relayChangedCallback) {
-    relayChangedCallback(newState.configuration.isRelayEnabled);
-  }
 
   if (previousState.view.temperature != newState.view.temperature && temperatureChangedCallback) {
     temperatureChangedCallback(newState.view.temperature);
@@ -45,6 +50,18 @@ void StateObserver::handle(const GlobalState &newState) {
 
   if(previousState.configuration.relayControl.mode != newState.configuration.relayControl.mode && relayModeChangedCallback) {
     relayModeChangedCallback(newState.configuration.relayControl.mode);
+  }
+
+  if (previousState.configuration.isRelayEnabled != newState.configuration.isRelayEnabled && relayChangedCallback) {
+    relayChangedCallback(newState.configuration.isRelayEnabled);
+  }
+
+  if(previousState.configuration.relayControl.temperatureOn != newState.configuration.relayControl.temperatureOn) {
+    onTemperatureChangedCallback(newState.configuration.relayControl.temperatureOn);
+  }
+
+  if(previousState.configuration.relayControl.temperatureOff != newState.configuration.relayControl.temperatureOff) {
+    offTemperatureChangedCallback(newState.configuration.relayControl.temperatureOff);
   }
 
   previousState = newState;

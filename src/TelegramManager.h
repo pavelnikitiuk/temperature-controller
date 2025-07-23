@@ -1,0 +1,49 @@
+#ifndef TELEGRAM_MANAGER_H
+#define TELEGRAM_MANAGER_H
+
+#include <FastBot2.h>
+#include <map>
+
+#include "Variables.h"
+
+enum TelegramEvent {
+  TELEGRAM_ENABLE,
+  TELEGRAM_DISABLE,
+  TELEGRAM_MODE,
+  TELEGRAM_TEMPERATURE,
+  TELEGRAM_SHOW_SETTINGS,
+  TELEGRAM_CHANGE_SETTINGS
+};
+
+class TelegramManager {
+public:
+  TelegramManager();
+  ~TelegramManager();
+
+  void begin(const char *token, const char chatId[128]);
+  void handle();
+  void sendRelayStateChanged(bool status);
+  void sendTemperature(float temperature);
+  void sendRelayModeChanged(RelayControlMode mode);
+  void sendTemperatureOnChanged(float temperature);
+  void sendTemperatureOffChanged(float temperature);
+  void sendShowSettings(float temperatureOn, float temperatureOff);
+  void onMessage(TelegramEvent, std::function<void()> callback);
+  void sendMessage(su::Text &text);
+  void sendMessage(const char *str);
+  void sendMessage(const String &str);
+
+
+private:
+  void handleUpdate(fb::Update &update);
+  fb::Menu getReplyKeyboard();
+  FastBot2 *bot;
+  const char *chatId;
+  const unsigned long updateInterval = 5000;
+  unsigned long lastUpdateTime = 0;
+  void handleMessage(fb::MessageRead message);
+  std::map<TelegramEvent, std::function<void()>> callbacks;
+  void sendCallback(TelegramEvent event);
+};
+
+#endif

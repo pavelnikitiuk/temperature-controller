@@ -8,7 +8,6 @@ bool RelayManager::begin() {
 }
 
 void RelayManager::setStatus(bool status) {
-  Serial.println(status);
   digitalWrite(pin, status);
 }
 

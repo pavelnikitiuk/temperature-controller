@@ -25,6 +25,8 @@ void ConfigManager::reset() {
   globalState.configuration.relayControl.temperatureOff = 0;
   strcpy(globalState.configuration.wifiState.name, "");
   strcpy(globalState.configuration.wifiState.password, "");
+  strcpy(globalState.configuration.telegram.token, "");
+  strcpy(globalState.configuration.telegram.chatId, "");
   strcpy(globalState.configuration.otaPassword, OTA_PASSWORD);
   save();
 }

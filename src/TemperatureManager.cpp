@@ -6,7 +6,7 @@ TemperatureManager::TemperatureManager(uint8_t pin)
   : pin(pin), oneWire(pin), sensors(&oneWire), temperatureSensors(&sensors) {}
 
 void TemperatureManager::begin() {
-  temperatureSensors.begin(NonBlockingDallas::resolution_9, updateInterval);
+  temperatureSensors.begin(NonBlockingDallas::resolution_10, updateInterval);
   temperatureSensors.onTemperatureChange(handleTemperatureChange);
 }
 

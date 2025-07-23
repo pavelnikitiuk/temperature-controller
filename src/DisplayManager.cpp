@@ -9,6 +9,7 @@ bool DisplayManager::begin() {
   Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
   Wire.setClock(400000);
   u8g2.begin();
+  u8g2.enableUTF8Print();
   lastUpdate = millis();
   return true;
 }
