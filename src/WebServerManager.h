@@ -31,6 +31,8 @@ private:
   void handleConfigPost();
   void handleUpdateGet();
   void handleUpdatePost();
+  String htmlEscape(const String &data);
+  String htmlEscape(const char* data);
 };
 
 #endif

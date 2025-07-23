@@ -5,9 +5,9 @@ void MainScreen::drawScreen() {
   u8g2.drawVLine(63, 0, 64);
   u8g2.drawVLine(64, 0, 64);
 
-  u8g2.setFont(u8g2_font_6x10_tr);
-  u8g2.drawStr(4, 12, "TEMP");
-  u8g2.drawStr(68, 12, "RELAY");
+  u8g2.setFont(I18N_FONT_TITLE);
+  u8g2.drawUTF8(4, 12, I18N_SCREEN_TEMPERATURE_TITLE);
+  u8g2.drawUTF8(68, 12, I18N_SCREEN_STATE_TITLE);
 
   char tempStr[6];
   snprintf(tempStr, sizeof(tempStr), "%.1f", globalState.view.temperature);
@@ -43,5 +43,8 @@ void MainScreen::drawScreen() {
 }
 
 void MainScreen::onClick() {
+  if (globalState.configuration.relayControl.mode != RELAY_CONTROL_MANUAL) {
+    return;
+  }
   globalState.configuration.isRelayEnabled = !globalState.configuration.isRelayEnabled;
 }

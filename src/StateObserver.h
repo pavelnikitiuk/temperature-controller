@@ -12,6 +12,8 @@ public:
   void onAppStateChanged(std::function<void(AppState)> callback);
   void onWiFiChanged(std::function<void(const WiFiState &)> callback);
   void onRelayModeChangedCallback(std::function<void(const RelayControlMode &)> callback);
+  void onOnTemperatureChangedCallback(std::function<void(const float &)> callback);
+  void onOffTemperatureChangedCallback(std::function<void(const float &)> callback);
 
   void handle(const GlobalState &newState);
 
@@ -23,6 +25,8 @@ private:
   std::function<void(AppState)> appStateChangedCallback = nullptr;
   std::function<void(const WiFiState &)> wifiChangedCallback = nullptr;
   std::function<void(const RelayControlMode &)> relayModeChangedCallback = nullptr;
+  std::function<void(const float &)> onTemperatureChangedCallback = nullptr;
+  std::function<void(const float &)> offTemperatureChangedCallback = nullptr;
 };
 
 #endif

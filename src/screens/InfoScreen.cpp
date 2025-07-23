@@ -37,8 +37,8 @@ void InfoScreen::drawText() {
   u8g2.drawFrame(0, 0, 128, 64);
   u8g2.drawHLine(0, 14, 128);
 
-  u8g2.setFont(u8g2_font_6x10_tr);
-  u8g2.drawStr(4, 11, "WiFi INFO");
+  u8g2.setFont(I18N_FONT_TITLE);
+  u8g2.drawUTF8(4, 11, I18N_SCREEN_WIFI_TITLE);
 
   const char *modeStr =
       currentState.mode == WIFI_MODE ? "Mode: WIFI" : "Mode: AP";

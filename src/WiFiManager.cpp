@@ -9,15 +9,27 @@ bool WiFiManager::begin() {
   return true;
 }
 
+void WiFiManager::onConnected(std::function<void()> callback) {
+  onConnectedCallback = callback;
+}
+
 void WiFiManager::connect() {
-  Serial.println(globalState.configuration.wifiState.name);
-  Serial.println(globalState.configuration.wifiState.name);
   WiFi.mode(WIFI_STA);
+  if (!globalState.configuration.wifiState.password) {
+    startAP();
+    state = State::FAILED;
+    globalState.view.currentState = MAIN_SCREEN;
+
+    return;
+  }
+
 #if defined(WOKWI)
   WiFi.begin("Wokwi-GUEST", "", 6);
   Serial.println("Connecting to wokwi guest network");
 #else
-  WiFi.begin(globalState.configuration.wifiState.name, globalState.configuration.wifiState.password);
+  char pass[64];
+  WiFi.begin(globalState.configuration.wifiState.name,
+             globalState.configuration.wifiState.password);
 #endif
 
   Serial.println("Connecting to WIFI network");
@@ -30,14 +42,18 @@ void WiFiManager::handle() {
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("\nConnected to WIFI");
       state = State::CONNECTED;
+      if(onConnectedCallback) {
+        onConnectedCallback();
+      }
+      globalState.configuration.wifiState.mode = WIFI_MODE;
       globalState.view.currentState = MAIN_SCREEN;
     } else if (millis() - startTime >= timeout) {
       Serial.println("\nFailed to connect to WIFI network. Creating AP");
       startAP();
       globalState.view.currentState = MAIN_SCREEN;
       state = State::FAILED;
-    } else {
-      Serial.print(".");
+      globalState.configuration.wifiState.mode = AP_MODE;
+      configManager.save();
     }
   }
 }
@@ -51,16 +67,19 @@ void WiFiManager::startAP() {
 }
 
 WiFiState WiFiManager::getWiFiState() {
-  WiFiState state;
-  if (WiFi.status() == WL_CONNECTED) {
-    state.mode = WIFI_MODE;
-    state.ip = WiFi.localIP();
-    strcpy(state.name, WiFi.SSID().c_str());
-  } else {
-    state.mode = AP_MODE;
-    state.ip = WiFi.softAPIP();
-    strcpy(state.name, AP_SSID);
-    strcpy(state.apPassword, AP_PASSWORD);
+  WiFiState wifiState = globalState.configuration.wifiState;
+  if (state == State::CONNECTING) {
+    return wifiState;
   }
-  return state;
+  if (WiFi.status() == WL_CONNECTED) {
+    wifiState.mode = WIFI_MODE;
+    wifiState.ip = WiFi.localIP();
+    strcpy(wifiState.name, WiFi.SSID().c_str());
+  } else {
+    wifiState.mode = AP_MODE;
+    wifiState.ip = WiFi.softAPIP();
+    strcpy(wifiState.name, AP_SSID);
+    strcpy(wifiState.apPassword, AP_PASSWORD);
+  }
+  return wifiState;
 }

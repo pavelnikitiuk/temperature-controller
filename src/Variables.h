@@ -1,6 +1,8 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
+#include "lang/lang.h"
+
 #if defined(ESP8266)
 #include <ESP8266WiFi.h>
 #define OLED_SDA_PIN D2
@@ -23,7 +25,7 @@
 #endif
 
 #define EEPROM_SIZE 1024
-#define CONFIG_MAGIC 0xDEADBEEA
+#define CONFIG_MAGIC 0xDEA135
 
 #define SERVER_PORT 80
 #define AP_SSID "TemperatureController"
@@ -49,7 +51,7 @@ enum RelayControlMode { RELAY_CONTROL_MANUAL, RELAY_CONTROL_AUTO };
 struct WiFiState {
   char name[32];
   char apPassword[32];
-  char password[64];
+  char password[32];
   IPAddress ip;
   WiFiStateMode mode;
 
@@ -74,6 +76,19 @@ struct RelayControl {
   bool operator!=(const RelayControl &other) const { return !(*this == other); }
 };
 
+struct TelegramBotSettings {
+  char chatId[128];
+  char token[64];
+
+  bool operator==(const TelegramBotSettings &other) const {
+    return (chatId == other.chatId) && (token == other.token);
+  }
+
+  bool operator!=(const TelegramBotSettings &other) const {
+    return !(*this == other);
+  }
+};
+
 struct GlobalViewState {
   AppState currentState;
   float temperature;
@@ -94,12 +109,14 @@ struct GlobalConfigurationState {
   RelayControl relayControl;
   char otaPassword[32];
   uint32_t magic;
+  TelegramBotSettings telegram;
 
   bool operator==(const GlobalConfigurationState &other) const {
     return (isRelayEnabled == other.isRelayEnabled) &&
            (wifiState == other.wifiState) &&
            (relayControl == other.relayControl) &&
-           otaPassword == other.otaPassword && magic == other.magic;
+           otaPassword == other.otaPassword && magic == other.magic &&
+           telegram == other.telegram;
   }
 
   bool operator!=(const GlobalConfigurationState &other) const {

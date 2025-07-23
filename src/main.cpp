@@ -11,12 +11,13 @@ GlobalState globalState;
 #include "ConfigManager.h"
 #include "DisplayManager.h"
 #include "OTAUpdater.h"
+#include "RelayManager.h"
 #include "RotaryManager.h"
 #include "StateManager.h"
+#include "TelegramManager.h"
 #include "TemperatureManager.h"
 #include "WebServerManager.h"
 #include "WiFiManager.h"
-#include "RelayManager.h"
 
 DisplayManager display;
 ConfigManager config;
@@ -26,13 +27,21 @@ OTAUpdater ota(config, display);
 RotaryManager rotary(ROTARY_CLK_PIN, ROTARY_DT_PIN, ROTARY_SW_PIN);
 TemperatureManager temperature(TEMP_PIN);
 RelayManager relay(RELAY_PIN);
-StateManager state(config, display, ota, wifi, rotary, temperature, relay);
+TelegramManager telegram;
+StateManager state(config, display, ota, wifi, rotary, temperature, relay, telegram);
 
 void setup() {
   Serial.begin(115200);
   config.load();
   display.begin();
   wifi.begin();
+  wifi.onConnected([]() {
+    if (globalState.configuration.telegram.token &&
+        globalState.configuration.telegram.chatId) {
+      telegram.begin(globalState.configuration.telegram.token,
+                     globalState.configuration.telegram.chatId);
+    }
+  });
   ota.setup();
   webServer.setup();
   relay.begin();
@@ -51,6 +60,7 @@ void loop() {
   state.handle();
   rotary.handle();
   temperature.handle();
+  telegram.handle();
 
 #if defined(SHOW_FPS)
   frames++;

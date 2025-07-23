@@ -17,6 +17,8 @@ public:
   void startAP();
   void handle();
   WiFiState getWiFiState();
+  void onConnected(std::function<void()> callback);
+
 
 private:
   ConfigManager &configManager;
@@ -25,5 +27,6 @@ private:
   State state = State::IDLE;
   unsigned long startTime = 0;
   const unsigned long timeout = 30000;
+  std::function<void()> onConnectedCallback = nullptr;
 };
 #endif
