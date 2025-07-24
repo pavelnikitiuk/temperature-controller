@@ -12,7 +12,10 @@ enum TelegramEvent {
   TELEGRAM_MODE,
   TELEGRAM_TEMPERATURE,
   TELEGRAM_SHOW_SETTINGS,
-  TELEGRAM_CHANGE_SETTINGS
+  TELEGRAM_CHANGE_SETTINGS,
+  TELEGRAM_CHOSE_CHANGE_ON_TEMPERATURE,
+  TELEGRAM_CHOSE_CHANGE_OFF_TEMPERATURE,
+  TELEGRAM_CHOSE_EXIT_FROM_SETTINGS,
 };
 
 class TelegramManager {
@@ -28,11 +31,14 @@ public:
   void sendTemperatureOnChanged(float temperature);
   void sendTemperatureOffChanged(float temperature);
   void sendShowSettings(float temperatureOn, float temperatureOff);
+  void sendInvalidTemperature();
   void onMessage(TelegramEvent, std::function<void()> callback);
+  void onMessage(std::function<void(Text)> callback);
   void sendMessage(su::Text &text);
   void sendMessage(const char *str);
   void sendMessage(const String &str);
-
+  int sendInlineMenu();
+  int updateInlineMenu(TelegramSettingsMenuState state);
 
 private:
   void handleUpdate(fb::Update &update);
@@ -42,8 +48,16 @@ private:
   const unsigned long updateInterval = 5000;
   unsigned long lastUpdateTime = 0;
   void handleMessage(fb::MessageRead message);
+  void handleQuery(fb::QueryRead query);
   std::map<TelegramEvent, std::function<void()>> callbacks;
+  std::function<void(Text)> everyMessageCallback = [](Text) {};
   void sendCallback(TelegramEvent event);
+  fb::InlineMenu getInlineMenuWithTemperatureAsk();
+  fb::InlineMenu getInlineMenuWithOffTemperatureAsk();
+  fb::InlineMenu getInlineMenuWithOnTemperatureAsk();
+  void closeInlineMenu();
+  const String getTemperatureSettings(float temperatureOn,
+                                      float temperatureOff);
 };
 
 #endif

@@ -23,6 +23,13 @@
 #define I18N_TELEGRAM_OFF_TEMPERATURE "Turn-off temperature: "
 #define I18N_TELEGRAM_ON_TEMPERATURE_CHANGED "New turn-on temperature: "
 #define I18N_TELEGRAM_OFF_TEMPERATURE_CHANGED "New turn-off temperature: "
+#define I18N_TELEGRAM_INLINE_MENU_TITLE "Change temperature settings"
+#define I18N_TELEGRAM_INLINE_MENU_ON_TEMPERATURE "Turn-on temperature"
+#define I18N_TELEGRAM_INLINE_MENU_OFF_TEMPERATURE "Turn-off temperature"
+#define I18N_TELEGRAM_INLINE_MENU_EXIT "Exit"
+#define I18N_TELEGRAM_INVALID_TEMPERATURE "Invalid temperature format (e.g. 10.5)"
+#define I18N_TELEGRAM_ENTER_TEMPERATURE_ON "Enter turn-on temperature"
+#define I18N_TELEGRAM_ENTER_TEMPERATURE_OFF "Enter turn-off temperature"
 
 #define I18N_SCREEN_MODE_MANUAL "Manual"
 #define I18N_SCREEN_MODE_AUTO "Auto"

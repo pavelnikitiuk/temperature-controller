@@ -45,6 +45,13 @@ enum AppState {
   STATES_COUNT,
 };
 
+enum TelegramSettingsMenuState {
+  TELEGRAM_SETTINGS_MENU_HIDDEN,
+  TELEGRAM_SETTINGS_ASK_TEMPERATURE_TYPE,
+  TELEGRAM_SETTINGS_ASK_TEMPERATURE_ON,
+  TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF,
+};
+
 enum WiFiStateMode { WIFI_MODE, AP_MODE };
 enum RelayControlMode { RELAY_CONTROL_MANUAL, RELAY_CONTROL_AUTO };
 
@@ -89,6 +96,11 @@ struct TelegramBotSettings {
   }
 };
 
+struct TelegramSettingsMenu {
+  int messageId;
+  TelegramSettingsMenuState state;
+};
+
 struct GlobalViewState {
   AppState currentState;
   float temperature;
@@ -110,6 +122,7 @@ struct GlobalConfigurationState {
   char otaPassword[32];
   uint32_t magic;
   TelegramBotSettings telegram;
+  TelegramSettingsMenu telegramSettingsMenu;
 
   bool operator==(const GlobalConfigurationState &other) const {
     return (isRelayEnabled == other.isRelayEnabled) &&
@@ -140,5 +153,9 @@ struct GlobalState {
 };
 
 extern GlobalState globalState;
+
+#define TELEGRAM_EXIT_BUTTON "button1"
+#define TELEGRAM_CHANGE_ON_BUTTON "button2"
+#define TELEGRAM_CHANGE_OFF_BUTTON "button3"
 
 #endif

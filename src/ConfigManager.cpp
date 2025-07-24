@@ -28,5 +28,7 @@ void ConfigManager::reset() {
   strcpy(globalState.configuration.telegram.token, "");
   strcpy(globalState.configuration.telegram.chatId, "");
   strcpy(globalState.configuration.otaPassword, OTA_PASSWORD);
+  globalState.configuration.telegramSettingsMenu.messageId = 0;
+  globalState.configuration.telegramSettingsMenu.state = TELEGRAM_SETTINGS_MENU_HIDDEN;
   save();
 }
