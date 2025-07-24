@@ -14,6 +14,7 @@ public:
   void onRelayModeChangedCallback(std::function<void(const RelayControlMode &)> callback);
   void onOnTemperatureChangedCallback(std::function<void(const float &)> callback);
   void onOffTemperatureChangedCallback(std::function<void(const float &)> callback);
+  void onTelegramMenuStateChangedCallback(std::function<void(TelegramSettingsMenuState)> callback);
 
   void handle(const GlobalState &newState);
 
@@ -27,6 +28,7 @@ private:
   std::function<void(const RelayControlMode &)> relayModeChangedCallback = nullptr;
   std::function<void(const float &)> onTemperatureChangedCallback = nullptr;
   std::function<void(const float &)> offTemperatureChangedCallback = nullptr;
+  std::function<void(TelegramSettingsMenuState)> telegramMenuStateChangedCallback = nullptr;
 };
 
 #endif

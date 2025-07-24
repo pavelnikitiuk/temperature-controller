@@ -23,6 +23,14 @@
 #define I18N_TELEGRAM_OFF_TEMPERATURE "Температура выключения: "
 #define I18N_TELEGRAM_ON_TEMPERATURE_CHANGED "Новая температура включения: "
 #define I18N_TELEGRAM_OFF_TEMPERATURE_CHANGED "Новая температура выключения: "
+#define I18N_TELEGRAM_INLINE_MENU_TITLE "Меняем настройки температуры"
+#define I18N_TELEGRAM_INLINE_MENU_ON_TEMPERATURE "Температура включения"
+#define I18N_TELEGRAM_INLINE_MENU_OFF_TEMPERATURE "Температура выключения"
+#define I18N_TELEGRAM_INLINE_MENU_EXIT "Выход"
+#define I18N_TELEGRAM_INVALID_TEMPERATURE "Не правильный формат температуры (пример 10.5)"
+#define I18N_TELEGRAM_ENTER_TEMPERATURE_ON "Введите температуру включения"
+#define I18N_TELEGRAM_ENTER_TEMPERATURE_OFF "Введите температуру выключения"
+
 
 #define I18N_SCREEN_MODE_MANUAL "Ручной"
 #define I18N_SCREEN_MODE_AUTO "Авто"

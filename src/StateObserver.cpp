@@ -32,6 +32,10 @@ void StateObserver::onOffTemperatureChangedCallback(std::function<void(const flo
   offTemperatureChangedCallback = callback;
 }
 
+void StateObserver::onTelegramMenuStateChangedCallback(std::function<void(TelegramSettingsMenuState)> callback) {
+  telegramMenuStateChangedCallback = callback;
+}
+
 void StateObserver::handle(const GlobalState &newState) {
 
   if (previousState.view.temperature != newState.view.temperature && temperatureChangedCallback) {
@@ -56,12 +60,16 @@ void StateObserver::handle(const GlobalState &newState) {
     relayChangedCallback(newState.configuration.isRelayEnabled);
   }
 
-  if(previousState.configuration.relayControl.temperatureOn != newState.configuration.relayControl.temperatureOn) {
+  if(previousState.configuration.relayControl.temperatureOn != newState.configuration.relayControl.temperatureOn && onTemperatureChangedCallback) {
     onTemperatureChangedCallback(newState.configuration.relayControl.temperatureOn);
   }
 
-  if(previousState.configuration.relayControl.temperatureOff != newState.configuration.relayControl.temperatureOff) {
+  if(previousState.configuration.relayControl.temperatureOff != newState.configuration.relayControl.temperatureOff && offTemperatureChangedCallback) {
     offTemperatureChangedCallback(newState.configuration.relayControl.temperatureOff);
+  }
+
+  if(previousState.configuration.telegramSettingsMenu.state != newState.configuration.telegramSettingsMenu.state && telegramMenuStateChangedCallback) {
+    telegramMenuStateChangedCallback(newState.configuration.telegramSettingsMenu.state);
   }
 
   previousState = newState;

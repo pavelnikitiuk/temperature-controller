@@ -65,6 +65,11 @@ void StateManager::registerHandlers() {
     telegramManager.sendTemperatureOffChanged(temperature);
     configManager.save();
   });
+  stateObserver.onTelegramMenuStateChangedCallback(
+      [this](TelegramSettingsMenuState state) {
+        telegramManager.updateInlineMenu(state);
+        configManager.save();
+      });
 
   rotaryManager.onEvent(RIGHT, [this]() {
     bool shouldSwithScreen = displayManager.currentScreen->onRightScroll();
@@ -117,7 +122,7 @@ void StateManager::registerHandlers() {
     if (globalState.configuration.relayControl.mode == RELAY_CONTROL_MANUAL) {
       newMode = RELAY_CONTROL_AUTO;
     } else {
-      newMode = RELAY_CONTROL_AUTO;
+      newMode = RELAY_CONTROL_MANUAL;
     }
     globalState.configuration.relayControl.mode = newMode;
   });
@@ -126,6 +131,58 @@ void StateManager::registerHandlers() {
     float on = globalState.configuration.relayControl.temperatureOn;
     float off = globalState.configuration.relayControl.temperatureOff;
     telegramManager.sendShowSettings(on, off);
+  });
+
+  telegramManager.onMessage(TELEGRAM_CHANGE_SETTINGS, [this]() {
+    globalState.configuration.telegramSettingsMenu.state =
+        TELEGRAM_SETTINGS_ASK_TEMPERATURE_TYPE;
+    configManager.save();
+  });
+
+  telegramManager.onMessage(TELEGRAM_CHOSE_EXIT_FROM_SETTINGS, [this]() {
+    globalState.configuration.telegramSettingsMenu.state =
+        TELEGRAM_SETTINGS_MENU_HIDDEN;
+  });
+
+  telegramManager.onMessage(TELEGRAM_CHOSE_CHANGE_OFF_TEMPERATURE, [this]() {
+    globalState.configuration.telegramSettingsMenu.state =
+        TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF;
+  });
+  telegramManager.onMessage(TELEGRAM_CHOSE_CHANGE_ON_TEMPERATURE, [this]() {
+    globalState.configuration.telegramSettingsMenu.state =
+        TELEGRAM_SETTINGS_ASK_TEMPERATURE_ON;
+  });
+
+  telegramManager.onMessage([this](su::Text text) {
+    TelegramSettingsMenuState state =
+        globalState.configuration.telegramSettingsMenu.state;
+    Serial.println(state);
+    bool isRelevantState = state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_ON ||
+                           state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF;
+    if (!isRelevantState) {
+      return;
+    }
+    String input = text.toString();
+    input.trim();
+
+    char *endptr;
+    double value = strtod(input.c_str(), &endptr);
+
+    bool isValidNumber = (endptr != input.c_str()) && (*endptr == '\0');
+
+    if (!isValidNumber) {
+      telegramManager.sendInvalidTemperature();
+      return;
+    }
+
+    if (state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_ON) {
+      globalState.configuration.relayControl.temperatureOn = value;
+    }
+    if (state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF) {
+      globalState.configuration.relayControl.temperatureOff= value;
+    }
+    globalState.configuration.telegramSettingsMenu.state = TELEGRAM_SETTINGS_MENU_HIDDEN;
+    configManager.save();
   });
 }
 
