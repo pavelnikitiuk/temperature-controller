@@ -4,19 +4,24 @@ StateManager::StateManager(ConfigManager &config, DisplayManager &display,
                            OTAUpdater &ota, WiFiManager &wifi,
                            RotaryManager &rotary,
                            TemperatureManager &temperature, RelayManager &relay,
-                           TelegramManager &telegram)
+                           TelegramManager &telegram, CurrentManager &current)
     : configManager(config), displayManager(display), otaManager(ota),
       wiFiManager(wifi), rotaryManager(rotary), temperatureManager(temperature),
-      relayManager(relay), telegramManager(telegram) {
+      relayManager(relay), telegramManager(telegram), currentManager(current) {
 
   viewScreens[0] = MAIN_SCREEN;
   viewScreens[1] = TEMPERATURE_SETTINGS_SCREEN;
   viewScreens[2] = MODE_SETTINGS_SCREEN;
   viewScreens[3] = INFO_SCREEN;
+  viewScreens[4] = POWER_SCREEN;
+}
 
+bool StateManager::begin() {
   stateObserver.begin(globalState);
   temperatureManager.begin();
+  relayManager.setStatus(globalState.configuration.isRelayEnabled);
   registerHandlers();
+  return true;
 }
 
 void StateManager::handle() {
@@ -31,6 +36,8 @@ void StateManager::handle() {
 void StateManager::updateGlobalState() {
   globalState.configuration.wifiState = wiFiManager.getWiFiState();
   globalState.view.temperature = temperatureManager.getTemperature();
+  globalState.view.current = currentManager.getCurrent();
+  globalState.view.power = currentManager.getPower();
 }
 
 void StateManager::registerHandlers() {
@@ -70,6 +77,8 @@ void StateManager::registerHandlers() {
         telegramManager.updateInlineMenu(state);
         configManager.save();
       });
+
+  stateObserver.onTotalWattsChangedCallback([this]() { configManager.save(); });
 
   rotaryManager.onEvent(RIGHT, [this]() {
     bool shouldSwithScreen = displayManager.currentScreen->onRightScroll();
@@ -156,7 +165,6 @@ void StateManager::registerHandlers() {
   telegramManager.onMessage([this](su::Text text) {
     TelegramSettingsMenuState state =
         globalState.configuration.telegramSettingsMenu.state;
-    Serial.println(state);
     bool isRelevantState = state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_ON ||
                            state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF;
     if (!isRelevantState) {
@@ -179,10 +187,20 @@ void StateManager::registerHandlers() {
       globalState.configuration.relayControl.temperatureOn = value;
     }
     if (state == TELEGRAM_SETTINGS_ASK_TEMPERATURE_OFF) {
-      globalState.configuration.relayControl.temperatureOff= value;
+      globalState.configuration.relayControl.temperatureOff = value;
     }
-    globalState.configuration.telegramSettingsMenu.state = TELEGRAM_SETTINGS_MENU_HIDDEN;
+    globalState.configuration.telegramSettingsMenu.state =
+        TELEGRAM_SETTINGS_MENU_HIDDEN;
     configManager.save();
+  });
+
+  telegramManager.onMessage(TELEGRAM_SHOW_POWER, [this]() {
+    telegramManager.sendCurrentPower(currentManager.getPower(),
+                                     currentManager.getCurrent());
+  });
+
+  telegramManager.onMessage(TELEGRAM_SHOW_TOTAL_POWER, [this]() {
+    telegramManager.sendTotalPower(globalState.configuration.watts);
   });
 }
 
@@ -208,6 +226,7 @@ void StateManager::swithScreen(int screensCount) {
 
 void StateManager::setRelayStatus(bool status) {
   relayManager.setStatus(status);
+  configManager.save();
   telegramManager.sendRelayStateChanged(status);
 }
 

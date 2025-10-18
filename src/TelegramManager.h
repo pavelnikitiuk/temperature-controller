@@ -13,6 +13,8 @@ enum TelegramEvent {
   TELEGRAM_TEMPERATURE,
   TELEGRAM_SHOW_SETTINGS,
   TELEGRAM_CHANGE_SETTINGS,
+  TELEGRAM_SHOW_POWER,
+  TELEGRAM_SHOW_TOTAL_POWER,
   TELEGRAM_CHOSE_CHANGE_ON_TEMPERATURE,
   TELEGRAM_CHOSE_CHANGE_OFF_TEMPERATURE,
   TELEGRAM_CHOSE_EXIT_FROM_SETTINGS,
@@ -37,6 +39,8 @@ public:
   void sendMessage(su::Text &text);
   void sendMessage(const char *str);
   void sendMessage(const String &str);
+  void sendCurrentPower(float power, float current);
+  void sendTotalPower(float power);
   int sendInlineMenu();
   int updateInlineMenu(TelegramSettingsMenuState state);
 

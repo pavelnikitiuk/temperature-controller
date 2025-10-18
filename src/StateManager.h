@@ -10,16 +10,18 @@
 #include "TemperatureManager.h"
 #include "Variables.h"
 #include "WiFiManager.h"
+#include "CurrentManager.h"
 
-const int viewScreensCount = 4;
+const int viewScreensCount = 5;
 class StateManager {
 public:
   StateManager(ConfigManager &config, DisplayManager &display, OTAUpdater &ota,
                WiFiManager &wiFi, RotaryManager &rotary,
                TemperatureManager &temperature, RelayManager &relay,
-               TelegramManager &telegram);
+               TelegramManager &telegram, CurrentManager &current);
   void handle();
   void updateGlobalState();
+  bool begin();
 
 private:
   ConfigManager &configManager;
@@ -31,6 +33,7 @@ private:
   TemperatureManager &temperatureManager;
   RelayManager &relayManager;
   TelegramManager &telegramManager;
+  CurrentManager &currentManager;
   unsigned long updateTime;
   unsigned long lastUpdateTime;
   void registerHandlers();

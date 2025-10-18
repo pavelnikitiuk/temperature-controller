@@ -21,6 +21,7 @@
 #include "screens/WiFiScreen.h"
 #include "screens/TemperatureSettingScreen.h"
 #include "screens/ModeSettingScreen.h"
+#include "screens/PowerScreen.h"
 
 class DisplayManager {
   public:
