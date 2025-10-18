@@ -18,6 +18,8 @@ GlobalState globalState;
 #include "TemperatureManager.h"
 #include "WebServerManager.h"
 #include "WiFiManager.h"
+#include "CurrentManager.h"
+#include "EnergyManager.h"
 
 DisplayManager display;
 ConfigManager config;
@@ -28,11 +30,18 @@ RotaryManager rotary(ROTARY_CLK_PIN, ROTARY_DT_PIN, ROTARY_SW_PIN);
 TemperatureManager temperature(TEMP_PIN);
 RelayManager relay(RELAY_PIN);
 TelegramManager telegram;
-StateManager state(config, display, ota, wifi, rotary, temperature, relay, telegram);
+CurrentManager current(CURRENT_PIN);
+StateManager state(config, display, ota, wifi, rotary, temperature, relay, telegram, current);
+EnergyManager energy(current);
 
 void setup() {
+  delay(1000);
   Serial.begin(115200);
+  relay.begin();
+  relay.setStatus(false);
   config.load();
+  energy.begin();
+  state.begin();
   display.begin();
   wifi.begin();
   wifi.onConnected([]() {
@@ -44,7 +53,6 @@ void setup() {
   });
   ota.setup();
   webServer.setup();
-  relay.begin();
 }
 
 #if defined(SHOW_FPS)
@@ -61,6 +69,8 @@ void loop() {
   rotary.handle();
   temperature.handle();
   telegram.handle();
+  current.handle();
+  energy.handle();
 
 #if defined(SHOW_FPS)
   frames++;

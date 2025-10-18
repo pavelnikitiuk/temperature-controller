@@ -36,6 +36,10 @@ void StateObserver::onTelegramMenuStateChangedCallback(std::function<void(Telegr
   telegramMenuStateChangedCallback = callback;
 }
 
+void StateObserver::onTotalWattsChangedCallback(std::function<void()> callback) {
+  totalWattsChangedCallback = callback;
+}
+
 void StateObserver::handle(const GlobalState &newState) {
 
   if (previousState.view.temperature != newState.view.temperature && temperatureChangedCallback) {
@@ -70,6 +74,10 @@ void StateObserver::handle(const GlobalState &newState) {
 
   if(previousState.configuration.telegramSettingsMenu.state != newState.configuration.telegramSettingsMenu.state && telegramMenuStateChangedCallback) {
     telegramMenuStateChangedCallback(newState.configuration.telegramSettingsMenu.state);
+  }
+
+  if(previousState.configuration.watts != newState.configuration.watts && totalWattsChangedCallback) {
+    totalWattsChangedCallback();
   }
 
   previousState = newState;

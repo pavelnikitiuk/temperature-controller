@@ -20,8 +20,13 @@ void DisplayManager::createScreenFactory() {
   screenFactory[WIFI] = [this]() { return new WiFiScreen(u8g2); };
   screenFactory[MAIN_SCREEN] = [this]() { return new MainScreen(u8g2); };
   screenFactory[INFO_SCREEN] = [this]() { return new InfoScreen(u8g2); };
-  screenFactory[TEMPERATURE_SETTINGS_SCREEN] = [this]() { return new TemperatureSettingScreen(u8g2); };
-  screenFactory[MODE_SETTINGS_SCREEN] = [this]() { return new ModeSettingScreen(u8g2); };
+  screenFactory[TEMPERATURE_SETTINGS_SCREEN] = [this]() {
+    return new TemperatureSettingScreen(u8g2);
+  };
+  screenFactory[MODE_SETTINGS_SCREEN] = [this]() {
+    return new ModeSettingScreen(u8g2);
+  };
+  screenFactory[POWER_SCREEN] = [this]() { return new PowerScreen(u8g2); };
 }
 
 void DisplayManager::setScreen(AppState state) {

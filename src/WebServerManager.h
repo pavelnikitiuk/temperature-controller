@@ -10,7 +10,7 @@
   #include <Update.h>
 #endif
 
-
+#include <ArduinoJson.h> 
 #include "ConfigManager.h"
 #include "DisplayManager.h"
 #include "Variables.h"
@@ -31,6 +31,7 @@ private:
   void handleConfigPost();
   void handleUpdateGet();
   void handleUpdatePost();
+  void handleGetState();
   String htmlEscape(const String &data);
   String htmlEscape(const char* data);
 };

@@ -73,6 +73,9 @@ fb::Menu TelegramManager::getReplyKeyboard() {
   menu.newRow();
   menu.addButton(I18N_TELEGRAM_SHOW_SETTING);
   menu.addButton(I18N_TELEGRAM_CHANGE_SETTING);
+  menu.newRow();
+  menu.addButton(I18N_TELEGRAM_SHOW_POWER);
+  menu.addButton(I18N_TELEGRAM_SHOW_TOTAL_POWER);
 
   return menu;
 }
@@ -147,6 +150,14 @@ void TelegramManager::handleMessage(fb::MessageRead message) {
     sendCallback(TELEGRAM_CHANGE_SETTINGS);
     break;
   }
+  case SH(I18N_TELEGRAM_SHOW_POWER): {
+    sendCallback(TELEGRAM_SHOW_POWER);
+    break;
+  }
+  case SH(I18N_TELEGRAM_SHOW_TOTAL_POWER): {
+    sendCallback(TELEGRAM_SHOW_TOTAL_POWER);
+    break;
+  }
   default:
     break;
   }
@@ -196,6 +207,14 @@ void TelegramManager::sendTemperatureOffChanged(float temperature) {
 void TelegramManager::sendShowSettings(float temperatureOn,
                                        float temperatureOff) {
   sendMessage(getTemperatureSettings(temperatureOn, temperatureOff));
+}
+
+void TelegramManager::sendCurrentPower(float power, float current) {
+  sendMessage(String(I18N_TELEGRAM_POWER) + power + "\n" + String(I18N_TELEGRAM_CURRENT) + current);
+}
+
+void TelegramManager::sendTotalPower(float power) {
+  sendMessage(String(power) + String(I18N_TELEGRAM_K_WATTS));
 }
 
 const String TelegramManager::getTemperatureSettings(float temperatureOn,

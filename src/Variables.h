@@ -12,6 +12,7 @@
 #define ROTARY_SW_PIN D5
 #define TEMP_PIN D3
 #define RELAY_PIN D4
+#define CURRENT_PIN A0
 #elif defined(ESP32)
 #include <WiFi.h>
 #define OLED_SDA_PIN 21
@@ -21,8 +22,8 @@
 #define ROTARY_SW_PIN 21
 #define TEMP_PIN 4
 #define RELAY_PIN 2
-
 #endif
+#include <ArduinoJson.h>
 
 #define EEPROM_SIZE 1024
 #define CONFIG_MAGIC 0xDEA135
@@ -35,13 +36,15 @@
 #define OLED_WIDTH 128
 #define OLED_HEIGHT 64
 
+#define CURRENT_SENSITIVITY 0.100
+
 enum AppState {
   WIFI,
   MAIN_SCREEN,
   INFO_SCREEN,
   TEMPERATURE_SETTINGS_SCREEN,
   MODE_SETTINGS_SCREEN,
-  LOADING_SCREEN,
+  POWER_SCREEN,
   STATES_COUNT,
 };
 
@@ -68,6 +71,14 @@ struct WiFiState {
   }
 
   bool operator!=(const WiFiState &other) const { return !(*this == other); }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["name"] = name;
+    doc["apPassword"] = apPassword;
+    doc["password"] = password;
+    doc["ip"] = ip.toString();
+    doc["mode"] = mode;
+  }
 };
 
 struct RelayControl {
@@ -81,6 +92,12 @@ struct RelayControl {
   }
 
   bool operator!=(const RelayControl &other) const { return !(*this == other); }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["mode"] = mode;
+    doc["temperatureOn"] = temperatureOn;
+    doc["temperatureOff"] = temperatureOff;
+  }
 };
 
 struct TelegramBotSettings {
@@ -94,24 +111,42 @@ struct TelegramBotSettings {
   bool operator!=(const TelegramBotSettings &other) const {
     return !(*this == other);
   }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["chatId"] = chatId;
+    doc["token"] = token;
+  }
 };
 
 struct TelegramSettingsMenu {
   int messageId;
   TelegramSettingsMenuState state;
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["messageId"] = messageId;
+    doc["state"] = state;
+  }
 };
 
 struct GlobalViewState {
   AppState currentState;
   float temperature;
+  float power;
+  float current;
 
   bool operator==(const GlobalViewState &other) const {
     return (currentState == other.currentState) &&
-           (temperature == other.temperature);
+           (temperature == other.temperature) && (power == other.power) &&
+           (current && other.current);
   }
 
   bool operator!=(const GlobalViewState &other) const {
     return !(*this == other);
+  }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["currentState"] = currentState;
+    doc["temperature"] = temperature;
   }
 };
 
@@ -123,17 +158,33 @@ struct GlobalConfigurationState {
   uint32_t magic;
   TelegramBotSettings telegram;
   TelegramSettingsMenu telegramSettingsMenu;
+  float watts;
 
   bool operator==(const GlobalConfigurationState &other) const {
     return (isRelayEnabled == other.isRelayEnabled) &&
            (wifiState == other.wifiState) &&
            (relayControl == other.relayControl) &&
            otaPassword == other.otaPassword && magic == other.magic &&
-           telegram == other.telegram;
+           telegram == other.telegram && watts == other.watts;
   }
 
   bool operator!=(const GlobalConfigurationState &other) const {
     return !(*this == other);
+  }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    doc["isRelayEnabled"] = isRelayEnabled;
+    JsonObject wifi = doc.createNestedObject("wifiState");
+    wifiState.toJson(wifi);
+
+    JsonObject relay = doc.createNestedObject("relayControl");
+    relayControl.toJson(relay);
+
+    doc["otaPassword"] = otaPassword;
+    doc["magic"] = magic;
+
+    JsonObject bot = doc.createNestedObject("telegram");
+    telegram.toJson(bot);
   }
 };
 
@@ -150,6 +201,14 @@ struct GlobalState {
   }
 
   bool operator!=(const GlobalState &other) const { return !(*this == other); }
+
+  void toJson(ArduinoJson::V742PB22::JsonObject &doc) const {
+    JsonObject viewObj = doc.createNestedObject("view");
+    view.toJson(viewObj);
+
+    JsonObject configObj = doc.createNestedObject("configuration");
+    configuration.toJson(configObj);
+  }
 };
 
 extern GlobalState globalState;

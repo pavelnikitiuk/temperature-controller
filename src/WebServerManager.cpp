@@ -14,10 +14,20 @@ void WebServerManager::setup() {
             std::bind(&WebServerManager::handleUpdateGet, this));
   server.on("/update", HTTP_POST,
             std::bind(&WebServerManager::handleUpdatePost, this));
+  server.on("/api/state", HTTP_GET,
+            std::bind(&WebServerManager::handleGetState, this));
   server.begin();
 }
 
 void WebServerManager::handle() { server.handleClient(); }
+
+void WebServerManager::handleGetState() {
+  ArduinoJson::V742PB22::JsonObject doc;
+  globalState.toJson(doc);
+  String output;
+  serializeJson(doc, output);
+  server.send(200, "application/json", output);
+}
 
 void WebServerManager::handleRoot() {
   server.send(200, "text/html",
